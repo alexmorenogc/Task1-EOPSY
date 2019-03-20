@@ -55,17 +55,19 @@ do
                -u|--uppercase) u=y;;
                -h|--help) show_help "$2"; shift;;
                -*) error_msg "bad option $1"; exit 1 ;;
-               *) echo "arg: $1"
+               *) name="$1";;
        esac
        shift
 done
 if test $l = "y"
 then
        echo "with option --lowercase"
+       echo "$name" | tr 'A-Z' 'a-z'
 fi
 if test $u = "y"
 then
        echo "with option --uppercase"
+       echo $name | tr 'a-z' 'A-Z'
 fi
 if test $r = "y"
 then
