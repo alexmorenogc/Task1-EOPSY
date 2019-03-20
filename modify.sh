@@ -66,7 +66,12 @@ then
        filename=$(echo "${fullpath##*/}")
        name_l=$(echo "$filename" | tr 'A-Z' 'a-z')
        mv "$path$filename" "$path$name_l"
-       echo "File $name_l ranamed successfully"
+       if test $? = 0
+       then
+         echo "File $name_l was ranamed successfully"
+       else
+         echo "File $filename can't be renamed"
+       fi
 fi
 if test $u = "y"
 then
@@ -75,7 +80,12 @@ then
        filename=$(echo "${fullpath##*/}")
        name_u=$(echo "$filename" | tr 'a-z' 'A-Z')
        mv "$path$filename" "$path$name_u"
-       echo "File $name_u ranamed successfully"
+       if test $? = 0
+       then
+         echo "File $name_u was ranamed successfully"
+       else
+         echo "File $filename can't be renamed"
+       fi
 fi
 if test $r = "y"
 then
