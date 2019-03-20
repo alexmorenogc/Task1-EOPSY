@@ -61,13 +61,17 @@ do
 done
 if test $l = "y"
 then
-       echo "with option --lowercase"
-       echo "$name" | tr 'A-Z' 'a-z'
+       echo "Rename $name with option --lowercase"
+       name_l=$(echo "$name" | tr 'A-Z' 'a-z')
+       mv "$name" "$name_l"
+       echo "File $name_l ranamed successfully"
 fi
 if test $u = "y"
 then
-       echo "with option --uppercase"
-       echo $name | tr 'a-z' 'A-Z'
+       echo "Rename $name with option --uppercase"
+       name_u=$(echo "$name" | tr 'a-z' 'A-Z')
+       mv "$name" "$name_u"
+       echo "File $name_u ranamed successfully"
 fi
 if test $r = "y"
 then
