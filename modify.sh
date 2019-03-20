@@ -55,22 +55,26 @@ do
                -u|--uppercase) u=y;;
                -h|--help) show_help "$2"; shift;;
                -*) error_msg "bad option $1"; exit 1 ;;
-               *) name="$1";;
+               *) fullpath="$1";;
        esac
        shift
 done
 if test $l = "y"
 then
-       echo "Rename $name with option --lowercase"
-       name_l=$(echo "$name" | tr 'A-Z' 'a-z')
-       mv "$name" "$name_l"
+       echo "Rename $fullpath with option --lowercase"
+       path=$(echo "${fullpath%/*}/")
+       filename=$(echo "${fullpath##*/}")
+       name_l=$(echo "$filename" | tr 'A-Z' 'a-z')
+       mv "$path$filename" "$path$name_l"
        echo "File $name_l ranamed successfully"
 fi
 if test $u = "y"
 then
-       echo "Rename $name with option --uppercase"
-       name_u=$(echo "$name" | tr 'a-z' 'A-Z')
-       mv "$name" "$name_u"
+       echo "Rename $fullpath with option --uppercase"
+       path=$(echo "${fullpath%/*}/")
+       filename=$(echo "${fullpath##*/}")
+       name_u=$(echo "$filename" | tr 'a-z' 'A-Z')
+       mv "$path$filename" "$path$name_u"
        echo "File $name_u ranamed successfully"
 fi
 if test $r = "y"
