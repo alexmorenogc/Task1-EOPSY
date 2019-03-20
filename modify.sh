@@ -14,12 +14,22 @@ error_msg()
 # function for help, using -h|--help option
 show_help()
 {
-       if test -z "$1"
-       then
-               error_msg "missing argument for -w"
-               exit 1
-       fi
-       echo "-w with argument: $1"
+cat<<EOT
+
+usage:
+ $name [-r|--recursive] [-l|--lowercase]|[-s|--uppercase] [-h|--help] <names>
+
+$name correct syntax examples:
+ $name -l new.c
+ $name -r --uppercase directory
+ $name --help
+
+$name incorrect syntax example:
+ $name -d
+
+EOT
+
+exit 1
 }
 
 
@@ -112,6 +122,7 @@ then
        done
 
 else
+  #no option given (upper or lower) for recursive
   error_msg "bad option recursive without uppercase or lowercase"
   exit 1
 fi
