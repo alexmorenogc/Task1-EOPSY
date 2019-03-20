@@ -59,35 +59,59 @@ do
        esac
        shift
 done
-if test $l = "y"
+if test $l = "y" && test $r = "n"
 then
        echo "Rename $fullpath with option --lowercase"
        path=$(echo "${fullpath%/*}/")
        filename=$(echo "${fullpath##*/}")
-       name_l=$(echo "$filename" | tr 'A-Z' 'a-z')
-       mv "$path$filename" "$path$name_l"
+       filename_l=$(echo "$filename" | tr 'A-Z' 'a-z')
+       mv "$path$filename" "$path$filename_l"
        if test $? = 0
        then
-         echo "File $name_l was ranamed successfully"
+         echo "File $filename_l was ranamed successfully"
        else
          echo "File $filename can't be renamed"
        fi
 fi
-if test $u = "y"
+if test $u = "y" && test $r = "n"
 then
        echo "Rename $fullpath with option --uppercase"
        path=$(echo "${fullpath%/*}/")
        filename=$(echo "${fullpath##*/}")
-       name_u=$(echo "$filename" | tr 'a-z' 'A-Z')
-       mv "$path$filename" "$path$name_u"
+       filename_u=$(echo "$filename" | tr 'a-z' 'A-Z')
+       mv "$path$filename" "$path$filename_u"
        if test $? = 0
        then
-         echo "File $name_u was ranamed successfully"
+         echo "File $filename_u was ranamed successfully"
        else
          echo "File $filename can't be renamed"
        fi
 fi
-if test $r = "y"
+if (test $r = "y" && test $u = "y") || ( test $r = "y" && test $l = "y")
 then
-       echo "with option --recursive"
+       echo "Rename $fullpath directory with option --recursive"
+       path=$(echo "${fullpath%/*}/")
+       cd $path
+       for filename in *.*
+       do
+         if test $u = "y"
+         then
+           filename_r=$(echo "$filename" | tr 'a-z' 'A-Z')
+         fi
+         if test $l = "y"
+         then
+           filename_r=$(echo "$filename" | tr 'A-Z' 'a-z')
+         fi
+         mv "$filename" "$filename_r"
+         if test $? = 0
+         then
+           echo "File $filename_r was ranamed successfully"
+         else
+           echo "File $filename can't be renamed"
+         fi
+       done
+
+else
+  error_msg "bad option recursive without uppercase or lowercase"
+  exit 1
 fi
