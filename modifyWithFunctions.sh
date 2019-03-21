@@ -1,6 +1,6 @@
 #!/bin/sh
 # Script for Task 1 for Operative Systems
-# Version 1.0
+# Version 1.1
 
 # the name of the script without a path
 name=`basename $0`
@@ -96,7 +96,7 @@ exit 1
 }
 
 
-# if no arguments given -- t
+# if no arguments given
 if test -z "$1"
 then
   echo "$name: error: no arguments given see --help"
@@ -117,6 +117,8 @@ do
        esac
        shift
 done
+
+# checking selection
 if test $l = "y" && test $r = "n" && test "$fullpath" != "/"
 then
   toLower
@@ -135,7 +137,7 @@ else
     error_msg "bad option recursive without uppercase or lowercase"
     show_help
   else
-    error_msg "bad arguments"
+    error_msg "bad arguments, you must write the filenames/directory"
     show_help
   fi
   exit 1
