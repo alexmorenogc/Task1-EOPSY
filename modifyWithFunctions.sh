@@ -30,7 +30,6 @@ toUpper()
   else
     echo "File $filename can't be renamed"
   fi
-  exit 1
 }
 
 toLower()
@@ -46,7 +45,6 @@ toLower()
   else
     echo "File $filename can't be renamed"
   fi
-  exit 1
 }
 
 recursively()
@@ -95,6 +93,32 @@ EOT
 exit 1
 }
 
+# checking conditions
+checking()
+{
+  if test $l = "y" && test $r = "n" && test "$fullpath" != "/"
+  then
+    toLower
+  fi
+  if test $u = "y" && test $r = "n" && test "$fullpath" != "/"
+  then
+    toUpper
+  fi
+  if (test $r = "y" && test $u = "y") || ( test $r = "y" && test $l = "y")
+  then
+    recursively
+  else
+    #no option given property
+    if test $r = "y"
+    then
+      error_msg "bad option recursive without uppercase or lowercase"
+      show_help
+    #else
+      #error_msg "bad arguments, you must write the filenames/directory"
+      #show_help
+    fi
+  fi
+}
 
 # if no arguments given
 if test -z "$1"
@@ -102,7 +126,6 @@ then
   echo "$name: error: no arguments given see --help"
   show_help
 fi
-
 
 # do with command line arguments
 while test "x$1" != "x"
@@ -113,32 +136,7 @@ do
                -u|--uppercase) u=y;;
                -h|--help) show_help "$2"; shift;;
                -*) error_msg "bad option $1"; exit 1 ;;
-               *) fullpath="$1";;
+               *) fullpath="$1"; checking;;
        esac
        shift
 done
-
-# checking selection
-if test $l = "y" && test $r = "n" && test "$fullpath" != "/"
-then
-  toLower
-fi
-if test $u = "y" && test $r = "n" && test "$fullpath" != "/"
-then
-  toUpper
-fi
-if (test $r = "y" && test $u = "y") || ( test $r = "y" && test $l = "y")
-then
-  recursively
-else
-  #no option given property
-  if test $r = "y"
-  then
-    error_msg "bad option recursive without uppercase or lowercase"
-    show_help
-  else
-    error_msg "bad arguments, you must write the filenames/directory"
-    show_help
-  fi
-  exit 1
-fi
