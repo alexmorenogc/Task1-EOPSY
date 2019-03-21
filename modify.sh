@@ -1,6 +1,6 @@
 #!/bin/sh
 # Script for Task 1 for Operative Systems
-# simple version
+# Version 1.0
 
 # the name of the script without a path
 name=`basename $0`
@@ -33,23 +33,11 @@ exit 1
 }
 
 
-# if no arguments given
+# if no arguments given -- t
 if test -z "$1"
 then
-cat<<EOT 1>&2
-
-usage:
- $name [-r|--recursive] [-l|--lowercase]|[-s|--uppercase] [-h|--help] <names>
-
-$name correct syntax examples:
- $name -l new.c
- $name -r --uppercase directory
- $name --help
-
-$name incorrect syntax example:
- $name -d
-
-EOT
+  echo "$name: error: no arguments given see --help"
+  show_help
 fi
 
 
@@ -57,6 +45,7 @@ fi
 l=n
 u=n
 r=n
+fullpath="/"
 while test "x$1" != "x"
 do
        case "$1" in
@@ -69,7 +58,7 @@ do
        esac
        shift
 done
-if test $l = "y" && test $r = "n"
+if test $l = "y" && test $r = "n" && test "$fullpath" != "/"
 then
        echo "Rename $fullpath with option --lowercase"
        path=$(echo "${fullpath%/*}/")
@@ -82,8 +71,9 @@ then
        else
          echo "File $filename can't be renamed"
        fi
+       exit 1
 fi
-if test $u = "y" && test $r = "n"
+if test $u = "y" && test $r = "n" && test "$fullpath" != "/"
 then
        echo "Rename $fullpath with option --uppercase"
        path=$(echo "${fullpath%/*}/")
@@ -96,6 +86,7 @@ then
        else
          echo "File $filename can't be renamed"
        fi
+       exit 1
 fi
 if (test $r = "y" && test $u = "y") || ( test $r = "y" && test $l = "y")
 then
@@ -120,9 +111,14 @@ then
            echo "File $filename can't be renamed"
          fi
        done
-
 else
-  #no option given (upper or lower) for recursive
-  error_msg "bad option recursive without uppercase or lowercase"
+  #no option given property
+  if test $r = "y"
+  then
+    error_msg "bad option recursive without uppercase or lowercase"
+  else
+    error_msg "bad arguments"
+    show_help
+  fi
   exit 1
 fi
