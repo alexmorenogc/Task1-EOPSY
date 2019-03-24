@@ -5,8 +5,8 @@
 # the name of the script without a path
 name=`basename $0`
 
-# vars to usa
-fullpath="/"
+# vars to use
+execution=n
 l=n
 u=n
 r=n
@@ -15,6 +15,7 @@ r=n
 error_msg()
 {
        echo "$name: error: $1" 1>&2
+       show_help
 }
 
 toUpper()
@@ -49,27 +50,33 @@ toLower()
 
 recursively()
 {
-  echo "Rename $fullpath directory with option --recursive"
-  path=$(echo "${fullpath%/*}/")
-  cd $path
-  for filename in *.*
-  do
-    if test $u = "y"
-    then
-      filename_r=$(echo "$filename" | tr 'a-z' 'A-Z')
-    fi
-    if test $l = "y"
-    then
-      filename_r=$(echo "$filename" | tr 'A-Z' 'a-z')
-    fi
-    mv "$filename" "$filename_r"
-    if test $? = 0
-    then
-      echo "File $filename_r was ranamed successfully"
-    else
-      echo "File $filename can't be renamed"
-    fi
-  done
+  if test -f "$1"
+  then
+    error_msg "a file can't be renamed recursively"
+  elif test -d "$1"
+  then
+    for filename in "$1"/*
+    do
+      if test -f "$filename"
+      then
+        if test $u = "y"
+        then
+          fullpath="$filename"
+          toUpper
+        fi
+        if test $l = "y"
+        then
+          fullpath="$filename"
+          toLower
+        fi
+      else
+        recursively "${filename}"
+      fi
+    done
+  else
+    error_msg "Something was wrong"
+  fi
+  shift
 }
 
 # function for help, using -h|--help option
@@ -81,7 +88,7 @@ usage:
  $name [-r|--recursive] [-l|--lowercase]|[-s|--uppercase] [-h|--help] <names>
 
 $name correct syntax examples:
- $name -l new.c
+ $name -l filename.txt
  $name -r --uppercase directory
  $name --help
 
@@ -96,35 +103,36 @@ exit 1
 # checking conditions
 checking()
 {
-  if test $l = "y" && test $r = "n" && test "$fullpath" != "/"
+  if (test $r = "y")
   then
-    toLower
-  fi
-  if test $u = "y" && test $r = "n" && test "$fullpath" != "/"
-  then
-    toUpper
-  fi
-  if (test $r = "y" && test $u = "y") || ( test $r = "y" && test $l = "y")
-  then
-    recursively
-  else
-    #no option given property
-    if test $r = "y"
+    if (test $u = "y" || test $l = "y")
     then
-      error_msg "bad option recursive without uppercase or lowercase"
-      show_help
-    #else
-      #error_msg "bad arguments, you must write the filenames/directory"
-      #show_help
+      recursively "$fullpath"
+    else
+      error_msg "error: bad option, no -u or -l"
+    fi
+  else
+    if (test $u = "y" || test $l = "y")
+    then
+      if [[ test $u = "y" ]]; then
+        toUpper
+      fi
+      if [[ test $l = "y" ]]; then
+        toLower
+      fi
+    else
+      error_msg "error: bad option, no -u or -l"
     fi
   fi
+
+  # flag to show error if no argument given
+  execution=y
 }
 
 # if no arguments given
 if test -z "$1"
 then
   echo "$name: error: no arguments given see --help"
-  show_help
 fi
 
 # do with command line arguments
@@ -140,3 +148,8 @@ do
        esac
        shift
 done
+
+if (test $execution = "n")
+then
+  error_msg "no filename or directory given see help, --help"
+fi
