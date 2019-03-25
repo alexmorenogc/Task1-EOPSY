@@ -21,31 +21,42 @@ error_msg()
 toUpper()
 {
   echo "Rename $fullpath with option --uppercase"
-  path=$(echo "${fullpath%/*}/")
-  filename=$(echo "${fullpath##*/}")
-  filename_u=$(echo "$filename" | tr 'a-z' 'A-Z')
-  mv "$path$filename" "$path$filename_u"
-  if test $? = 0
+  if (test -f $fullpath)
   then
-    echo "File $filename_u was ranamed successfully"
+    path=$(echo "${fullpath%/*}/")
+    filename=$(echo "${fullpath##*/}")
+    filename_u=$(echo "$filename" | tr 'a-z' 'A-Z')
+    mv "$path$filename" "$path$filename_u"
+    if test $? = 0
+    then
+      echo "File $filename_u was ranamed successfully"
+    else
+      echo "File $filename can't be renamed"
+    fi
   else
-    echo "File $filename can't be renamed"
+    error_msg "the argument is not a file"
   fi
 }
 
 toLower()
 {
   echo "Rename $fullpath with option --lowercase"
-  path=$(echo "${fullpath%/*}/")
-  filename=$(echo "${fullpath##*/}")
-  filename_l=$(echo "$filename" | tr 'A-Z' 'a-z')
-  mv "$path$filename" "$path$filename_l"
-  if test $? = 0
+  if (test -f $fullpath)
   then
-    echo "File $filename_l was ranamed successfully"
+    path=$(echo "${fullpath%/*}/")
+    filename=$(echo "${fullpath##*/}")
+    filename_l=$(echo "$filename" | tr 'A-Z' 'a-z')
+    mv "$path$filename" "$path$filename_l"
+    if test $? = 0
+    then
+      echo "File $filename_l was ranamed successfully"
+    else
+      echo "File $filename can't be renamed"
+    fi
   else
-    echo "File $filename can't be renamed"
+    error_msg "the argument is not a file"
   fi
+
 }
 
 recursively()
@@ -114,10 +125,12 @@ checking()
   else
     if (test $u = "y" || test $l = "y")
     then
-      if [[ test $u = "y" ]]; then
+      if (test $u = "y")
+      then
         toUpper
       fi
-      if [[ test $l = "y" ]]; then
+      if (test $l = "y")
+      then
         toLower
       fi
     else
