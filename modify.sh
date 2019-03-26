@@ -20,11 +20,11 @@ error_msg()
 
 toUpper()
 {
-  echo "Rename $fullpath with option --uppercase"
-  if (test -f $fullpath)
+  echo "Rename $1 with option --uppercase"
+  if (test -f $1)
   then
-    path=$(echo "${fullpath%/*}/")
-    filename=$(echo "${fullpath##*/}")
+    path=$(echo "${1%/*}/")
+    filename=$(echo "${1##*/}")
     filename_u=$(echo "$filename" | tr 'a-z' 'A-Z')
     mv "$path$filename" "$path$filename_u"
     if test $? = 0
@@ -40,11 +40,11 @@ toUpper()
 
 toLower()
 {
-  echo "Rename $fullpath with option --lowercase"
-  if (test -f $fullpath)
+  echo "Rename $1 with option --lowercase"
+  if (test -f $1)
   then
-    path=$(echo "${fullpath%/*}/")
-    filename=$(echo "${fullpath##*/}")
+    path=$(echo "${1%/*}/")
+    filename=$(echo "${1##*/}")
     filename_l=$(echo "$filename" | tr 'A-Z' 'a-z')
     mv "$path$filename" "$path$filename_l"
     if test $? = 0
@@ -56,7 +56,6 @@ toLower()
   else
     error_msg "the argument is not a file"
   fi
-
 }
 
 recursively()
@@ -72,13 +71,13 @@ recursively()
       then
         if test $u = "y"
         then
-          fullpath="$filename"
-          toUpper
+          #argument="$filename"
+          toUpper "${filename}"
         fi
         if test $l = "y"
         then
-          fullpath="$filename"
-          toLower
+          #argument="$filename"
+          toLower "${filename}"
         fi
       else
         recursively "${filename}"
@@ -90,6 +89,52 @@ recursively()
   shift
 }
 
+recursively_sed()
+{
+  if test -f "$1"
+  then
+    error_msg "a file can't be renamed recursively"
+  elif test -d "$1"
+  then
+    for filename in "$1"/*
+    do
+      if test -f "$filename"
+      then
+        sed_patern "$1"
+      else
+        recursively_sed "${filename}"
+      fi
+    done
+  else
+    error_msg "Something was wrong"
+  fi
+  shift
+}
+
+
+sed_patern()
+{
+  newFilename=$(echo "$1" | sed "$2")
+  mv "$1" "$newFilename"
+
+  echo "Rename $1 with option sed pattern $2"
+  if (test -f $1)
+  then
+    path=$(echo "${1%/*}/")
+    filename=$(echo "${1##*/}")
+    newFilename=$(echo "$filename" | sed "$2")
+    mv "$path$filename" "$path$newFilename"
+    if test $? = 0
+    then
+      echo "File $newFilename was ranamed successfully"
+    else
+      echo "File $filename can't be renamed"
+    fi
+  else
+    error_msg "the argument is not a file"
+  fi
+
+}
 # function for help, using -h|--help option
 show_help()
 {
@@ -118,23 +163,25 @@ checking()
   then
     if (test $u = "y" || test $l = "y")
     then
-      recursively "$fullpath"
+      recursively "$argument"
     else
-      error_msg "error: bad option, no -u or -l"
+      #error_msg "error: bad option, no -u or -l"
+      recursively_sed "$argument"
     fi
   else
     if (test $u = "y" || test $l = "y")
     then
       if (test $u = "y")
       then
-        toUpper
+        toUpper "$argument"
       fi
       if (test $l = "y")
       then
-        toLower
+        toLower "$argument"
       fi
     else
-      error_msg "error: bad option, no -u or -l"
+      #error_msg "error: bad option, no -u or -l"
+      sed_patern "$argument"
     fi
   fi
 
@@ -157,7 +204,7 @@ do
                -u|--uppercase) u=y;;
                -h|--help) show_help "$2"; shift;;
                -*) error_msg "bad option $1"; exit 1 ;;
-               *) fullpath="$1"; checking;;
+               *) argument="$1"; checking;;
        esac
        shift
 done
