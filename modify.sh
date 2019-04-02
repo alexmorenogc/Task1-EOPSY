@@ -112,16 +112,22 @@ recursively_sed()
 
 sed_patern()
 {
-  newFilename=$(echo "$1" | sed "$argument")
-  if test "$newFilename" != "$1"
+  path=$(echo "${1%/*}/")
+  newFilename=$(echo "${1##*/}" | sed "$argument")
+  if test $? != 0
   then
-    echo "Rename $1 with option sed pattern $argument"
-    mv "$1" "$newFilename"
-    if test $? = 0
+    echo "Sed Pattern: $argument wrong"
+  else
+    if test "$path$newFilename" != "$1"
     then
-      echo "File $newFilename was ranamed successfully"
-    else
-      echo "File $filename can't be renamed"
+      echo "Rename $1 with option sed pattern $argument"
+      mv "$1" "$path$newFilename"
+      if test $? = 0
+      then
+        echo "File $newFilename was ranamed successfully"
+      else
+        echo "File $filename can't be renamed"
+      fi
     fi
   fi
 }
