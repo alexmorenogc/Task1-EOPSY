@@ -71,12 +71,10 @@ recursively()
       then
         if test $u = "y"
         then
-          #argument="$filename"
           toUpper "${filename}"
         fi
         if test $l = "y"
         then
-          #argument="$filename"
           toLower "${filename}"
         fi
       else
@@ -114,26 +112,18 @@ recursively_sed()
 
 sed_patern()
 {
-  newFilename=$(echo "$1" | sed "$2")
-  mv "$1" "$newFilename"
+  echo "Rename $1 with option sed pattern $argument"
 
-  echo "Rename $1 with option sed pattern $2"
-  if (test -f $1)
+  newFilename=$(echo "$1" | sed "$argument")
+  mv "$1" "$newFilename"
+  if test $? = 0
   then
-    path=$(echo "${1%/*}/")
-    filename=$(echo "${1##*/}")
-    newFilename=$(echo "$filename" | sed "$2")
-    mv "$path$filename" "$path$newFilename"
-    if test $? = 0
-    then
-      echo "File $newFilename was ranamed successfully"
-    else
-      echo "File $filename can't be renamed"
-    fi
+    echo "File $newFilename was ranamed successfully"
   else
-    error_msg "the argument is not a file"
+    echo "File $filename can't be renamed"
   fi
 }
+
 # function for help, using -h|--help option
 show_help()
 {
@@ -160,7 +150,6 @@ exit 1
 # checking conditions
 checking()
 {
-  echo "argument: $argument"
   if (test $r = "y")
   then
     if (test $u = "y" || test $l = "y")
@@ -168,7 +157,6 @@ checking()
       recursively "$argument"
     else
       recursively_sed "$@"
-      exit 1
     fi
   else
     if (test $u = "y" || test $l = "y")
@@ -204,8 +192,22 @@ checking()
         fi
       fi
     else
-      sed_patern "$@"
-      exit 1
+      shift
+      for filename in "$@"
+      do
+        if test -f "$filename"
+        then
+          sed_patern "$1"
+        else
+          for filename_inside in "$filename"/*
+          do
+            if test -f "$filename_inside"
+            then
+              sed_patern "$filename_inside"
+            fi
+          done
+        fi
+      done
     fi
   fi
 
