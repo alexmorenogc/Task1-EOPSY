@@ -29,7 +29,7 @@ toUpper()
     mv "$path$filename" "$path$filename_u"
     if test $? = 0
     then
-      echo "File $filename_u was ranamed successfully"
+      echo "File $filename_u was renamed successfully"
     else
       echo "File $filename can't be renamed"
     fi
@@ -49,7 +49,7 @@ toLower()
     mv "$path$filename" "$path$filename_l"
     if test $? = 0
     then
-      echo "File $filename_l was ranamed successfully"
+      echo "File $filename_l was renamed successfully"
     else
       echo "File $filename can't be renamed"
     fi
@@ -143,6 +143,8 @@ cat<<EOT
 usage:
  $name [-r|--recursive] [-l|--lowercase]|[-s|--uppercase] [-h|--help] <names>
 
+Change to uppercase or lowercase the filenames given by arguments
+
 $name correct syntax examples:
  $name -l filename.txt
  $name -r --uppercase directory
@@ -159,29 +161,52 @@ exit 1
 # checking conditions
 checking()
 {
+  echo "argument: $argument"
   if (test $r = "y")
   then
     if (test $u = "y" || test $l = "y")
     then
       recursively "$argument"
     else
-      #error_msg "error: bad option, no -u or -l"
-      recursively_sed "$argument"
+      error_msg "error: bad option, no -u or -l"
+      #recursively_sed "$argument"
     fi
   else
     if (test $u = "y" || test $l = "y")
     then
       if (test $u = "y")
       then
-        toUpper "$argument"
+        if test -f "$argument"
+        then
+          toUpper "$argument"
+        else
+          for filename in "$argument"/*
+          do
+            if test -f "$filename"
+            then
+              toUpper "$filename"
+            fi
+          done
+        fi
       fi
       if (test $l = "y")
       then
-        toLower "$argument"
+        if test -f "$argument"
+        then
+          toLower "$argument"
+        else
+          for filename in "$argument"/*
+          do
+            if test -f "$filename"
+            then
+              toLower "$filename"
+            fi
+          done
+        fi
       fi
     else
-      #error_msg "error: bad option, no -u or -l"
-      sed_patern "$argument"
+      error_msg "error: bad option, no -u or -l"
+      #sed_patern "$argument"
     fi
   fi
 
@@ -193,6 +218,7 @@ checking()
 if test -z "$1"
 then
   echo "$name: error: no arguments given see --help"
+  show_help
 fi
 
 # do with command line arguments
@@ -202,7 +228,7 @@ do
                -r|--recursive) r=y;;
                -l|--lowercase) l=y;;
                -u|--uppercase) u=y;;
-               -h|--help) show_help "$2"; shift;;
+               -h|--help) show_help; shift;;
                -*) error_msg "bad option $1"; exit 1 ;;
                *) argument="$1"; checking;;
        esac

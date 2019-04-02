@@ -1,0 +1,33 @@
+#!/bin/sh
+
+show_msg()
+{
+cat<<EOT
+
+Mensaje:
+ $name tienes loco a alex
+
+Tienes varias opciones:
+
+$name el uso es así:
+ $name -l filename.txt
+ $name -r --uppercase directory
+ $name --help
+
+$name incorrect syntax example:
+ $name -d
+
+EOT
+
+exit 1
+}
+
+while test "x$1" != "x"
+do
+  case "$1" in
+    -a|--alex) show_msg; shift;;
+    -*) error_msg "bad option $1"; exit 1 ;;
+    *) argument="$1"; checking;;
+  esac
+  shift
+done
