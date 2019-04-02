@@ -112,15 +112,17 @@ recursively_sed()
 
 sed_patern()
 {
-  echo "Rename $1 with option sed pattern $argument"
-
   newFilename=$(echo "$1" | sed "$argument")
-  mv "$1" "$newFilename"
-  if test $? = 0
+  if test "$newFilename" != "$1"
   then
-    echo "File $newFilename was ranamed successfully"
-  else
-    echo "File $filename can't be renamed"
+    echo "Rename $1 with option sed pattern $argument"
+    mv "$1" "$newFilename"
+    if test $? = 0
+    then
+      echo "File $newFilename was ranamed successfully"
+    else
+      echo "File $filename can't be renamed"
+    fi
   fi
 }
 
@@ -156,6 +158,7 @@ checking()
     then
       recursively "$argument"
     else
+      shift
       recursively_sed "$@"
     fi
   else
