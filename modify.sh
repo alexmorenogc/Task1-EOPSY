@@ -133,7 +133,6 @@ sed_patern()
   else
     error_msg "the argument is not a file"
   fi
-
 }
 # function for help, using -h|--help option
 show_help()
@@ -168,8 +167,8 @@ checking()
     then
       recursively "$argument"
     else
-      error_msg "error: bad option, no -u or -l"
-      #recursively_sed "$argument"
+      recursively_sed "$@"
+      exit 1
     fi
   else
     if (test $u = "y" || test $l = "y")
@@ -205,8 +204,8 @@ checking()
         fi
       fi
     else
-      error_msg "error: bad option, no -u or -l"
-      #sed_patern "$argument"
+      sed_patern "$@"
+      exit 1
     fi
   fi
 
@@ -230,7 +229,7 @@ do
                -u|--uppercase) u=y;;
                -h|--help) show_help; shift;;
                -*) error_msg "bad option $1"; exit 1 ;;
-               *) argument="$1"; checking;;
+               *) argument="$1"; checking $@;;
        esac
        shift
 done
