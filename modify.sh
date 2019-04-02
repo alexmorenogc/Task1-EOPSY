@@ -82,7 +82,7 @@ recursively()
       fi
     done
   else
-    error_msg "Something was wrong"
+    error_msg "Folder doesn't exist"
   fi
   shift
 }
@@ -116,7 +116,7 @@ sed_patern()
   newFilename=$(echo "${1##*/}" | sed "$argument")
   if test $? != 0
   then
-    echo "Sed Pattern: $argument wrong"
+    echo "sed Pattern: $argument wrong"
   else
     if test "$path$newFilename" != "$1"
     then
@@ -128,6 +128,8 @@ sed_patern()
       else
         echo "File $filename can't be renamed"
       fi
+    else
+      echo "File $1 hasn't changed"
     fi
   fi
 }
