@@ -82,13 +82,20 @@ recursively()
       fi
     done
   else
-    error_msg "Folder '$1' doesn't exist"
+    if (test -n $1)
+    then
+      error_msg "Folder '$1' doesn't exist"
+    fi
   fi
   shift
 }
 
 recursively_sed()
 {
+  if test -z $1
+  then
+    break
+  fi
   if (test -f "$1")
   then
     error_msg "a file can't be renamed recursively"
@@ -104,7 +111,7 @@ recursively_sed()
       fi
     done
   else
-    error_msg "Folder '$1' doesn't exist"
+      error_msg "Folder '$1' doesn't exist"
   fi
   shift
 }
