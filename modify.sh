@@ -116,7 +116,7 @@ sed_patern()
   newFilename=$(echo "${1##*/}" | sed "$argument")
   if test $? != 0
   then
-    echo "sed Pattern: $argument wrong"
+    error_msg "sed pattern '$argument' wrong, see man sed to help"
   else
     if test "$path$newFilename" != "$1"
     then
