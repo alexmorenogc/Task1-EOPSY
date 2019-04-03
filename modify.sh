@@ -82,29 +82,29 @@ recursively()
       fi
     done
   else
-    error_msg "Folder doesn't exist"
+    error_msg "Folder '$1' doesn't exist"
   fi
   shift
 }
 
 recursively_sed()
 {
-  if test -f "$1"
+  if (test -f "$1")
   then
     error_msg "a file can't be renamed recursively"
-  elif test -d "$1"
+  elif (test -d "$1")
   then
     for filename in "$1"/*
     do
       if test -f "$filename"
       then
-        sed_patern "$1"
+        sed_patern "${filename}"
       else
         recursively_sed "${filename}"
       fi
     done
   else
-    error_msg "Something was wrong"
+    error_msg "Folder '$1' doesn't exist"
   fi
   shift
 }
