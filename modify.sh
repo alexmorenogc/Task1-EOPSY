@@ -1,6 +1,6 @@
 #!/bin/sh
 # Script for Task 1 for Operative Systems
-# Version 1.1
+# Version 1.2
 
 # the name of the script without a path
 name=`basename $0`
@@ -17,6 +17,7 @@ error_msg()
        echo "$name: error: $1" 1>&2
 }
 
+# funcion to convert the argument in capital letters
 toUpper()
 {
   echo "Rename $1 with option --uppercase"
@@ -42,6 +43,7 @@ toUpper()
   fi
 }
 
+# function to convert the argument in lower case
 toLower()
 {
   echo "Rename $1 with option --lowercase"
@@ -67,6 +69,7 @@ toLower()
   fi
 }
 
+# function to go over every folder
 recursively()
 {
   if test -f "$1"
@@ -102,6 +105,7 @@ recursively()
   shift
 }
 
+# go over every folder using sed pattern
 recursively_sed()
 {
   if test -z $1
@@ -131,7 +135,7 @@ recursively_sed()
   shift
 }
 
-
+# function to change the name using sed pattern
 sed_patern()
 {
   path=$(dirname "${1}")
@@ -287,5 +291,5 @@ done
 
 if (test $execution = "n")
 then
-  error_msg "no filename or directory given, see help --help"
+  error_msg "no filename or directory, or sed pattern given, see help --help"
 fi
