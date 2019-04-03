@@ -23,10 +23,12 @@ toUpper()
   echo "Rename $1 with option --uppercase"
   if (test -f $1)
   then
-    path=$(echo "${1%/*}/")
-    filename=$(echo "${1##*/}")
+    #path=$(echo "${1%/*}/")
+    #filename=$(echo "${1##*/}")
+    path=$(dirname "${1}")
+    filename=$(basename "${1}")
     filename_u=$(echo "$filename" | tr 'a-z' 'A-Z')
-    mv "$path$filename" "$path$filename_u"
+    mv "$path/$filename" "$path/$filename_u"
     if test $? = 0
     then
       echo "File $filename_u was renamed successfully"
@@ -43,10 +45,12 @@ toLower()
   echo "Rename $1 with option --lowercase"
   if (test -f $1)
   then
-    path=$(echo "${1%/*}/")
-    filename=$(echo "${1##*/}")
+    #path=$(echo "${1%/*}/")
+    #filename=$(echo "${1##*/}")
+    path=$(dirname "${1}")
+    filename=$(basename "${1}")
     filename_l=$(echo "$filename" | tr 'A-Z' 'a-z')
-    mv "$path$filename" "$path$filename_l"
+    mv "$path/$filename" "$path/$filename_l"
     if test $? = 0
     then
       echo "File $filename_l was renamed successfully"
@@ -119,21 +123,21 @@ recursively_sed()
 
 sed_patern()
 {
-  path=$(echo "${1%/*}/")
-  newFilename=$(echo "${1##*/}" | sed "$argument")
+  path=$(dirname "${1}")
+  newFilename=$(basename "${1}"| sed "$argument")
   if test $? != 0
   then
     error_msg "sed pattern '$argument' wrong, see man sed to help"
   else
-    if test "$path$newFilename" != "$1"
+    if test "$newFilename" != "$(basename "${1}")"
     then
       echo "Rename $1 with option sed pattern $argument"
-      mv "$1" "$path$newFilename"
+      mv "$1" "$path/$newFilename"
       if test $? = 0
       then
         echo "File $newFilename was ranamed successfully"
       else
-        echo "File $filename can't be renamed"
+        echo "File $1 can't be renamed"
       fi
     else
       echo "File $1 hasn't changed"
