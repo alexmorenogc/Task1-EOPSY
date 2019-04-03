@@ -15,7 +15,6 @@ r=n
 error_msg()
 {
        echo "$name: error: $1" 1>&2
-       show_help
 }
 
 toUpper()
@@ -23,17 +22,20 @@ toUpper()
   echo "Rename $1 with option --uppercase"
   if (test -f $1)
   then
-    #path=$(echo "${1%/*}/")
-    #filename=$(echo "${1##*/}")
     path=$(dirname "${1}")
     filename=$(basename "${1}")
     filename_u=$(echo "$filename" | tr 'a-z' 'A-Z')
-    mv "$path/$filename" "$path/$filename_u"
-    if test $? = 0
+    if test $filename_u = $filename
     then
-      echo "File $filename_u was renamed successfully"
+      echo "File $1 wasn't updated"
     else
-      echo "File $filename can't be renamed"
+      mv "$path/$filename" "$path/$filename_u"
+      if test $? = 0
+      then
+        echo "File $filename_u was renamed successfully"
+      else
+        echo "File $filename can't be renamed"
+      fi
     fi
   else
     error_msg "the argument is not a file"
@@ -45,17 +47,20 @@ toLower()
   echo "Rename $1 with option --lowercase"
   if (test -f $1)
   then
-    #path=$(echo "${1%/*}/")
-    #filename=$(echo "${1##*/}")
     path=$(dirname "${1}")
     filename=$(basename "${1}")
     filename_l=$(echo "$filename" | tr 'A-Z' 'a-z')
-    mv "$path/$filename" "$path/$filename_l"
-    if test $? = 0
+    if test $filename_l = $filename
     then
-      echo "File $filename_l was renamed successfully"
+      echo "File $1 wasn't updated"
     else
-      echo "File $filename can't be renamed"
+      mv "$path/$filename" "$path/$filename_l"
+      if test $? = 0
+      then
+        echo "File $filename_l was renamed successfully"
+      else
+        echo "File $filename can't be renamed"
+      fi
     fi
   else
     error_msg "the argument is not a file"
@@ -67,7 +72,7 @@ recursively()
   if test -f "$1"
   then
     error_msg "a file can't be renamed recursively"
-  elif test -d "$1"
+  elif test -d "$1" && test "$(ls -A $1)"
   then
     for filename in "$1"/*
     do
@@ -85,6 +90,9 @@ recursively()
         recursively "${filename}"
       fi
     done
+  elif test -d "$1" && test !"$(ls -A $1)"
+  then
+    echo "Folder $1 empty"
   else
     if (test -n $1)
     then
@@ -103,7 +111,7 @@ recursively_sed()
   if (test -f "$1")
   then
     error_msg "a file can't be renamed recursively"
-  elif (test -d "$1")
+  elif test -d "$1" && test "$(ls -A $1)"
   then
     for filename in "$1"/*
     do
@@ -114,6 +122,9 @@ recursively_sed()
         recursively_sed "${filename}"
       fi
     done
+  elif test -d "$1" && test !"$(ls -A $1)"
+  then
+    echo "Folder $1 is empty"
   else
       error_msg "Folder '$1' doesn't exist"
   fi
@@ -188,7 +199,8 @@ checking()
         if test -f "$argument"
         then
           toUpper "$argument"
-        else
+        elif test -d "$argument" && test "$(ls -A $argument)"
+        then
           for filename in "$argument"/*
           do
             if test -f "$filename"
@@ -196,6 +208,11 @@ checking()
               toUpper "$filename"
             fi
           done
+        elif test -d "$argument" && test !"$(ls -A $argument)"
+        then
+          error_msg "directory $argument is empty"
+        else
+          error_msg "file $argument doesn't exist"
         fi
       fi
       if (test $l = "y")
@@ -203,7 +220,8 @@ checking()
         if test -f "$argument"
         then
           toLower "$argument"
-        else
+        elif test -d $argument
+        then
           for filename in "$argument"/*
           do
             if test -f "$filename"
@@ -211,9 +229,19 @@ checking()
               toLower "$filename"
             fi
           done
+        elif test -d "$argument" && test !"$(ls -A $argument)"
+        then
+          error_msg "directory $argument is empty"
+        else
+          error_msg "file $argument doesn't exist"
         fi
       fi
     else
+      if test $# -le 2
+      then
+        error_msg "not many arguments given, see help --help"
+        exit 1
+      fi
       shift
       for filename in "$@"
       do
@@ -241,7 +269,6 @@ checking()
 if test -z "$1"
 then
   echo "$name: error: no arguments given see --help"
-  show_help
 fi
 
 # do with command line arguments
@@ -252,7 +279,7 @@ do
                -l|--lowercase) l=y;;
                -u|--uppercase) u=y;;
                -h|--help) show_help; shift;;
-               -*) error_msg "bad option $1"; exit 1 ;;
+               -*) error_msg "bad option $1, see help --help"; exit 1 ;;
                *) argument="$1"; checking $@;;
        esac
        shift
@@ -260,5 +287,5 @@ done
 
 if (test $execution = "n")
 then
-  error_msg "no filename or directory given see help, --help"
+  error_msg "no filename or directory given, see help --help"
 fi
