@@ -10,11 +10,14 @@ execution=n
 l=n
 u=n
 r=n
+sed=n
+pattern=n
 
 # function for printing error messages to diagnostic output
 error_msg()
 {
        echo "$name: error: $1" 1>&2
+       exit 1
 }
 
 # funcion to convert the argument in capital letters
@@ -139,14 +142,14 @@ recursively_sed()
 sed_patern()
 {
   path=$(dirname "${1}")
-  newFilename=$(basename "${1}"| sed "$argument")
+  newFilename=$(basename "${1}"| sed "$pattern")
   if test $? != 0
   then
-    error_msg "sed pattern '$argument' wrong, see man sed to help"
+    error_msg "sed pattern '$pattern' wrong, see man sed to help"
   else
     if test "$newFilename" != "$(basename "${1}")"
     then
-      echo "Rename $1 with option sed pattern $argument"
+      echo "Rename $1 with option sed pattern $pattern"
       mv "$1" "$path/$newFilename"
       if test $? = 0
       then
@@ -193,6 +196,7 @@ checking()
       recursively "$argument"
     else
       shift
+      pattern=$argument
       recursively_sed "$@"
     fi
   else
@@ -241,27 +245,41 @@ checking()
         fi
       fi
     else
-      if test $# -le 2
+      if test $# -le 1 && test $sed = "n"
       then
         error_msg "not many arguments given, see help --help"
-        exit 1
       fi
-      shift
-      for filename in "$@"
-      do
-        if test -f "$filename"
-        then
-          sed_patern "$1"
-        else
-          for filename_inside in "$filename"/*
-          do
-            if test -f "$filename_inside"
-            then
-              sed_patern "$filename_inside"
-            fi
-          done
-        fi
-      done
+      if (test $sed = "y")
+      then
+        for filename in "$@"
+        do
+          if test -f "$filename"
+          then
+            echo "arg: $1"
+            sed_patern "${1}"
+          elif test -d "$filename" && test "$(ls -A $filename)"
+          then
+            for filename_inside in "$filename"/*
+            do
+              if test -f "$filename_inside"
+              then
+                echo "arg: $filename_inside"
+                sed_patern "${filename_inside}"
+              fi
+            done
+          elif test -d "$filename"  && test !"$(ls -A $filename)"
+          then
+            echo "directory $filename is empty"
+          else
+            error_msg "directory $filename doesn't exist"
+          fi
+        done
+      fi
+      sed=y
+      if test $pattern = "n"
+      then
+        pattern=$argument
+      fi
     fi
   fi
 
@@ -282,7 +300,7 @@ do
                -r|--recursive) r=y;;
                -l|--lowercase) l=y;;
                -u|--uppercase) u=y;;
-               -h|--help) show_help; shift;;
+               -h|--help) show_help;;
                -*) error_msg "bad option $1, see help --help"; exit 1 ;;
                *) argument="$1"; checking $@;;
        esac
