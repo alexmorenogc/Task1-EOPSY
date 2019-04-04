@@ -195,9 +195,12 @@ checking()
     then
       recursively "$argument"
     else
-      shift
-      pattern=$argument
-      recursively_sed "$@"
+      if test $pattern = "n"
+      then
+        pattern=$argument
+      else
+        recursively_sed "$@"
+      fi
     fi
   else
     if (test $u = "y" || test $l = "y")
