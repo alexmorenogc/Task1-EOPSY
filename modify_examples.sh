@@ -76,8 +76,8 @@ echo "Test 23: testing sed pattern..."
 echo "Test 24: testing sed pattern in recursivity..."
 ./modify.sh -r s/abc/cba/g TestDir/TestDir2/TestDir3/
 
-echo "Test 25: testing sed pattern in many directories..."
+echo "Test 25: testing sed pattern in recursivity again..."
 ./modify.sh -r s/cba/abc/g TestDir/
 
-echo "Test 26: testing sed pattern in many directories..."
+echo "Test 26: testing sed pattern recursivily in many directories..."
 ./modify.sh -r s/abc/cba/g TestDir/TestDir2/TestDir3/ TestDir/
